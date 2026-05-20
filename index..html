@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ナンパ師検定：空気読み地獄編</title>
+<style>
+  :root{
+    --bg:#11131a;
+    --panel:#191d29;
+    --panel2:#222838;
+    --text:#f5f7ff;
+    --muted:#aab2cc;
+    --accent:#ffcf4a;
+    --bad:#ff6b6b;
+    --good:#65d98a;
+    --line:#343b52;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255,207,74,.16), transparent 30%),
+      radial-gradient(circle at 80% 20%, rgba(101,217,138,.12), transparent 25%),
+      linear-gradient(160deg,#0b0c10,#151824 60%,#0b0c10);
+    color:var(--text);
+    min-height:100vh;
+  }
+  header{
+    padding:22px 18px 12px;
+    text-align:center;
+  }
+  h1{
+    margin:0;
+    font-size:clamp(24px,5vw,42px);
+    letter-spacing:.05em;
+  }
+  .subtitle{
+    margin:10px auto 0;
+    color:var(--muted);
+    max-width:820px;
+    line-height:1.7;
+    font-size:14px;
+  }
+  .wrap{
+    max-width:960px;
+    margin:0 auto;
+    padding:14px;
+  }
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)), var(--panel);
+    border:1px solid var(--line);
+    border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+    padding:18px;
+  }
+  .topbar{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .stat{
+    background:var(--panel2);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:10px;
+    text-align:center;
+  }
+  .stat b{
+    display:block;
+    color:var(--accent);
+    font-size:20px;
+  }
+  .stat span{
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:2px;
+  }
+  .scene{
+    border-left:5px solid var(--accent);
+    background:rgba(255,207,74,.07);
+    padding:14px;
+    border-radius:14px;
+    line-height:1.75;
+    margin-bottom:14px;
+  }
+  .meta{
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:8px;
+  }
+  .question{
+    font-size:18px;
+    line-height:1.65;
+    margin:8px 0 14px;
+    font-weight:700;
+  }
+  .choices{
+    display:grid;
+    gap:10px;
+  }
+  button{
+    font:inherit;
+    color:var(--text);
+    background:var(--panel2);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:13px 14px;
+    cursor:pointer;
+    text-align:left;
+    line-height:1.55;
+    transition:.15s transform,.15s border,.15s background;
+    touch-action:manipulation;
+  }
+  button:hover{transform:translateY(-1px);border-color:var(--accent)}
+  button:disabled{cursor:not-allowed;opacity:.9}
+  .choice.correct{
+    border-color:var(--good);
+    background:rgba(101,217,138,.13);
+  }
+  .choice.wrong{
+    border-color:var(--bad);
+    background:rgba(255,107,107,.12);
+  }
+  .explain{
+    display:none;
+    margin-top:14px;
+    padding:14px;
+    border-radius:14px;
+    background:#10131c;
+    border:1px solid var(--line);
+    line-height:1.75;
+  }
+  .explain.show{display:block}
+  .explain b{color:var(--accent)}
+  .controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+  .primary{
+    background:linear-gradient(135deg,#ffcf4a,#ff9f43);
+    color:#201400;
+    border:none;
+    font-weight:800;
+    text-align:center;
+  }
+  .ghost{
+    text-align:center;
+  }
+  .start{
+    text-align:center;
+    line-height:1.75;
+  }
+  .start h2{
+    margin-top:0;
+  }
+  .rules{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:10px;
+    margin:16px 0;
+  }
+  .rule{
+    background:var(--panel2);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:12px;
+    color:var(--muted);
+    font-size:14px;
+  }
+  .resultTitle{
+    font-size:28px;
+    margin:4px 0 12px;
+    color:var(--accent);
+  }
+  .rank{
+    padding:14px;
+    border-radius:16px;
+    background:rgba(255,207,74,.08);
+    border:1px solid rgba(255,207,74,.35);
+    margin:14px 0;
+  }
+  .log{
+    margin-top:14px;
+    display:grid;
+    gap:8px;
+  }
+  .logItem{
+    background:#10131c;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:10px;
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.55;
+  }
+  .tag{
+    display:inline-block;
+    color:#1a1400;
+    background:var(--accent);
+    border-radius:999px;
+    padding:2px 8px;
+    font-size:12px;
+    font-weight:800;
+    margin-right:6px;
+  }
+  .danger{color:var(--bad)}
+  .ok{color:var(--good)}
+  .hidden{display:none}
+  @media(max-width:680px){
+    .topbar{grid-template-columns:repeat(2,1fr)}
+    .card{padding:14px}
+    button{padding:13px 12px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>ナンパ師検定：空気読み地獄編</h1>
+  <p class="subtitle">
+    これは「しつこく口説くゲーム」ではありません。<br>
+    礼儀・安全・撤退判断・あほっぽい自己演出を見抜く、妙に難しい4択検定です。
+  </p>
+</header>
+
+<div class="wrap">
+  <div class="card" id="app"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    level:"第1夜：声量ミスの交差点",
+    scene:"駅前で友人を待つ人が、スマホを見ながらイヤホン片耳。あなたは謎に自信満々で、胸ポケットには折りたたみ式の“会話許可証”と書いた紙がある。",
+    q:"この場で最も“減点が少ない”初動はどれ？",
+    choices:[
+      "少し離れた位置から、短く一度だけ話しかけ、反応が薄ければすぐ離れる",
+      "目の前に立って、手作り許可証を見せながら三秒だけ沈黙で待つ",
+      "横に並び、イヤホン側から低音で『運命ですか？』と確認する",
+      "スマホ画面を見ないよう顔だけ寄せて、道案内風に会話を始める"
+    ],
+    ans:0,
+    exp:"安全距離・短さ・一回限り・撤退がそろっています。会話許可証はあほっぽさとしては満点ですが、相手の進路や視界をふさぐと大減点です。"
+  },
+  {
+    level:"第2夜：褒め言葉の地雷原",
+    scene:"カフェの入口で、相手の持っている本がかなり専門的。あなたはその本を少し知っているが、知識量は微妙に浅い。",
+    q:"一番まだマシな一言はどれ？",
+    choices:[
+      "その本、章立てが独特ですよね。急ぎでなければ一つだけ聞いてもいいですか",
+      "それ読んでる人、初めて見ました。たぶん僕と相性いいと思います",
+      "その本を選ぶ感性、かなり珍しいですね。僕なら語れます",
+      "難しそうな本ですね。僕も難しい顔だけは得意なんですけど"
+    ],
+    ans:0,
+    exp:"対象を外見ではなく持ち物・内容に置き、質問許可と撤退余地があります。知ったかぶり全開の選択肢は、浅さがバレた瞬間に沈没します。"
+  },
+  {
+    level:"第3夜：撤退の美学",
+    scene:"相手が『すみません、急いでます』と言った。あなたの脳内ではなぜかファンファーレが鳴り、“ここから粘れば伝説”という悪魔が囁く。",
+    q:"正しい撤退セリフはどれ？",
+    choices:[
+      "すみません、急いでいるところ失礼しました。お気をつけて",
+      "ですよね、でも十秒だけなら人生変わるかもしれません",
+      "急いでる感じ、逆に素敵ですね。歩きながら一言だけ",
+      "了解です。では急ぎ度を十段階でいうと何点ですか"
+    ],
+    ans:0,
+    exp:"拒否・多忙・困惑のサインが出たら即終了。ゲーム的には地味ですが、ここで引ける人が一番高得点です。"
+  },
+  {
+    level:"第4夜：あほ自己紹介トラップ",
+    scene:"あなたは自分を印象づけるため、名刺に『会話の小型二級ボイラー技士』と印刷してきた。だが相手は真顔である。",
+    q:"この名刺を使うなら、最も事故が少ない使い方は？",
+    choices:[
+      "冗談グッズだと先に言い、相手が笑わなければ即しまう",
+      "資格名っぽく見せ、質問されるまで本物のように振る舞う",
+      "無言で渡し、相手が読むまで目をそらさず待つ",
+      "『これを受け取った人は三分会話』というルールを説明する"
+    ],
+    ans:0,
+    exp:"あほ要素は“相手が乗った時だけ成立”です。相手の反応を見ずにルール化すると、急に怖いイベントになります。"
+  },
+  {
+    level:"第5夜：観察力ミクロ検定",
+    scene:"商店街で相手が店の看板を見て迷っている。あなたは道を知っているが、会話目的も少しある。",
+    q:"最も自然で押しつけが少ない行動は？",
+    choices:[
+      "道を探している様子なら、必要かだけ短く聞き、案内後は離れる",
+      "目的地を当てるゲームとして近づき、三択で答えてもらう",
+      "『僕も迷ってます』と嘘をつき、共同探索イベントにする",
+      "店の常連風に話し始め、最後に連絡先交換へ自然移行する"
+    ],
+    ans:0,
+    exp:"助ける理由が明確で、会話の延長を勝手に作らないのが安全です。嘘の共同探索はゲームなら面白いですが現実では不信感の塊です。"
+  },
+  {
+    level:"第6夜：褒めない褒め術",
+    scene:"相手の服装がかなり個性的。あなたは褒めたいが、外見評価に寄りすぎると重い。しかも言語センスが少し壊れている。",
+    q:"一番安全寄りのコメントは？",
+    choices:[
+      "色の合わせ方が面白いですね。急ぎでなければ、どこで選んだかだけ聞いてもいいですか",
+      "その服、僕の脳内審査員が全員立ち上がりました",
+      "かなり目立ってますね。普通の人にはできない感じです",
+      "服からして、たぶん会話偏差値も高いですよね"
+    ],
+    ans:0,
+    exp:"具体的・短い・許可つきが強いです。『普通ではない』系は褒めているつもりでも刺さり方が読めません。"
+  },
+  {
+    level:"第7夜：連絡先交換の幻覚",
+    scene:"三分ほど雑談できた。相手は笑ったが、時計を二回見た。あなたは勝手に“これはもう第2章”と思い始めている。",
+    q:"次の一手で最も減点が少ないのは？",
+    choices:[
+      "話せて楽しかったと伝え、連絡先は無理に求めず相手の反応を見る",
+      "笑ってくれたので、QRコードを表示して相手のスマホ前に出す",
+      "時計を見たのは照れ隠しと判断し、次の店の話を出す",
+      "去り際に早口でSNS名を唱え、覚えてもらう方式にする"
+    ],
+    ans:0,
+    exp:"笑顔は同意の証明ではありません。時計を見る、体が出口に向く、返事が短いなどは終了サイン寄りです。"
+  },
+  {
+    level:"第8夜：謎の師匠モード",
+    scene:"後輩が『ナンパって何を鍛えたらいいんですか』と聞いてきた。あなたはなぜか腕を組み、商店街の鳩を見つめている。",
+    q:"一番まともな指導は？",
+    choices:[
+      "相手の反応を読む力、断られた時にすぐ引く力、短く話す力",
+      "声量、押し切り、記憶に残る変な肩書きの三本柱",
+      "最初の三秒で世界観を作り、相手の予定を上書きする力",
+      "褒め言葉の連射速度と、沈黙を怖がらない圧力"
+    ],
+    ans:0,
+    exp:"コミュニケーションとして大事なのは、相手の自由を残すこと。鳩を見つめる必要はありません。"
+  },
+  {
+    level:"第9夜：難問・状況矛盾",
+    scene:"イベント会場で、相手は友人二人と楽しそうに話している。あなたはその輪に入りたいが、会話の流れはまったく知らない。",
+    q:"最も避けるべき行動はどれ？",
+    choices:[
+      "輪の中央に入り、全員に向けて自己紹介から始める",
+      "邪魔にならない位置を保ち、会話中なら無理に入らない",
+      "共通の展示物について一言だけ、反応がなければ離れる",
+      "スタッフへの質問など、会話目的でない接点だけに留める"
+    ],
+    ans:0,
+    exp:"この問題だけ“避けるべき”を聞いています。中央割り込みは全員の空気を止めるため大事故です。問題文の向きが変わるので要注意です。"
+  },
+  {
+    level:"第10夜：究極のあほ難問",
+    scene:"あなたの服には『沈黙担当』というワッペン。相手は一瞬だけ見たが、笑ったかどうか判定不能。周囲はやや混雑、出口は近い。",
+    q:"総合的に最も無難な判断は？",
+    choices:[
+      "混雑と出口付近を避け、相手の動線を空けたまま、無理に接触しない",
+      "ワッペンに気づいたので、無言芸として三秒だけ横に立つ",
+      "出口付近なら別れ際が自然なので、短い決め台詞を置く",
+      "笑った可能性に賭け、ワッペンの由来を長めに説明する"
+    ],
+    ans:0,
+    exp:"混雑・出口・動線はかなり重要です。相手の退路や移動を妨げない判断が最優先。あほワッペンは家で鏡に向かって披露しましょう。"
+  },
+  {
+    level:"裏1：文章量メタ読み封じ",
+    scene:"ここからは正解位置も文の長さもバラバラ。問題文の小さな条件を読まないと普通に外します。",
+    q:"相手が『今日は友達と来てるので』と言った。最も適切なのは？",
+    choices:[
+      "友達も一緒なら安心ですね、と輪に混ざる提案をする",
+      "失礼しました、楽しんでください、と短く切り上げる",
+      "友達の許可があれば大丈夫か聞く",
+      "では友達が戻るまで一分だけ話す"
+    ],
+    ans:1,
+    exp:"“友達と来ている”は断りの柔らかい表現になり得ます。そこに条件交渉を重ねないのが正解です。"
+  },
+  {
+    level:"裏2：高難度・好意っぽい罠",
+    scene:"相手が笑いながら『変な人ですね』と言った。あなたは褒められた気がしているが、相手の足は出口方向を向いている。",
+    q:"最も安全な解釈は？",
+    choices:[
+      "好印象確定なので、もう少し踏み込んでよい",
+      "笑いはあるが、移動したそうなので切り上げる",
+      "変な人認定を得たので、キャラを強める",
+      "出口方向は偶然なので、会話内容を優先する"
+    ],
+    ans:1,
+    exp:"言葉だけでなく体の向き・移動サインを見ます。笑っていても、終わりたい時はあります。"
+  },
+  {
+    level:"裏3：謎の自信過剰",
+    scene:"あなたは今日、髪型が奇跡的に決まっている。鏡の前では八割増し。しかし相手には何の関係もない。",
+    q:"この自信の扱いとして正しいのは？",
+    choices:[
+      "自信は姿勢に使い、相手の反応を上書きする根拠にはしない",
+      "髪型が決まっている日は、少し強めの会話でも成立する",
+      "外見の調子が良いなら、撤退ラインを少しだけ遅らせる",
+      "自信がある日は、冗談の攻め幅を広げて印象を残す"
+    ],
+    ans:0,
+    exp:"自信は落ち着きのために使うもので、相手の意思を読み替えるための燃料ではありません。"
+  }
+];
+
+let order = [];
+let idx = 0;
+let score = 0;
+let streak = 0;
+let maxStreak = 0;
+let answered = false;
+let log = [];
+let hardMode = false;
+
+const app = document.getElementById("app");
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function start(mode=false){
+  hardMode = mode;
+  idx = 0; score = 0; streak = 0; maxStreak = 0; log = [];
+  order = QUESTIONS.map((_,i)=>i);
+  shuffle(order);
+  if(!hardMode) order = order.slice(0,10);
+  renderQuestion();
+}
+
+function renderStart(){
+  app.innerHTML = `
+    <div class="start">
+      <h2>ようこそ、空気読みの沼へ。</h2>
+      <p>
+        このゲームは、声かけの“押し”ではなく、<b>相手の自由を守る判断</b>を見抜く検定です。<br>
+        ただし演出はかなりあほです。胸ポケットに謎の許可証を入れているタイプのゲームです。
+      </p>
+      <div class="rules">
+        <div class="rule"><b>難しさ</b><br>選択肢は全部それっぽく見えるよう調整。</div>
+        <div class="rule"><b>ひっかけ</b><br>たまに「避けるべき」を聞いてきます。</div>
+        <div class="rule"><b>倫理軸</b><br>拒否・多忙・困惑なら即撤退が高得点。</div>
+        <div class="rule"><b>あほ軸</b><br>変な名刺やワッペンは、基本的に足を引っぱります。</div>
+      </div>
+      <div class="controls" style="justify-content:center">
+        <button class="primary" onclick="start(false)">通常検定を開始</button>
+        <button class="ghost" onclick="start(true)">地獄ランダム13問</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderStats(){
+  const total = order.length;
+  return `
+    <div class="topbar">
+      <div class="stat"><b>${idx+1}/${total}</b><span>問題</span></div>
+      <div class="stat"><b>${score}</b><span>得点</span></div>
+      <div class="stat"><b>${streak}</b><span>連続正解</span></div>
+      <div class="stat"><b>${maxStreak}</b><span>最大連続</span></div>
+    </div>
+  `;
+}
+
+function renderQuestion(){
+  answered = false;
+  const q = QUESTIONS[order[idx]];
+  const mapped = q.choices.map((text,i)=>({text, original:i}));
+  shuffle(mapped);
+
+  app.innerHTML = `
+    ${renderStats()}
+    <div class="meta">${q.level}</div>
+    <div class="scene">${q.scene}</div>
+    <div class="question">${q.q}</div>
+    <div class="choices">
+      ${mapped.map((c,i)=>`<button class="choice" data-original="${c.original}" onclick="answer(this)">${["A","B","C","D"][i]}　${c.text}</button>`).join("")}
+    </div>
+    <div class="explain" id="explain"></div>
+  `;
+}
+
+function answer(btn){
+  if(answered) return;
+  answered = true;
+  const q = QUESTIONS[order[idx]];
+  const selected = Number(btn.dataset.original);
+  const buttons = [...document.querySelectorAll(".choice")];
+  const correct = selected === q.ans;
+  buttons.forEach(b=>{
+    b.disabled = true;
+    const org = Number(b.dataset.original);
+    if(org === q.ans) b.classList.add("correct");
+    if(b === btn && org !== q.ans) b.classList.add("wrong");
+  });
+
+  if(correct){
+    const bonus = 10 + Math.min(streak,4)*2;
+    score += bonus;
+    streak++;
+    maxStreak = Math.max(maxStreak, streak);
+  }else{
+    streak = 0;
+  }
+
+  log.push({
+    title:q.level,
+    ok:correct,
+    exp:q.exp
+  });
+
+  const ex = document.getElementById("explain");
+  ex.classList.add("show");
+  ex.innerHTML = `
+    <b>${correct ? "正解！空気読み成功。" : "不正解！謎の自信が暴発。"}</b><br>
+    ${q.exp}
+    <div class="controls">
+      ${idx < order.length-1
+        ? `<button class="primary" onclick="nextQuestion()">次の問題へ</button>`
+        : `<button class="primary" onclick="renderResult()">結果を見る</button>`}
+      <button class="ghost" onclick="renderStart()">最初に戻る</button>
+    </div>
+  `;
+  app.querySelector(".topbar").outerHTML = renderStats();
+}
+
+function nextQuestion(){
+  idx++;
+  renderQuestion();
+}
+
+function renderResult(){
+  const total = order.length;
+  const max = total * 10 + Math.min(4,total-1)*2*total; // rough display not used as strict max
+  let rank, text;
+  const rate = score / (total * 14);
+
+  if(rate >= .82){
+    rank = "S級：撤退が美しい紳士";
+    text = "かなり強いです。押す力ではなく、引く判断が速いタイプ。あほ小道具を持っていても、使う前に空気を見られます。";
+  }else if(rate >= .62){
+    rank = "A級：商店街の空気読み侍";
+    text = "かなり良いです。たまに変な自己演出が出ますが、相手の反応を見る基本はできています。";
+  }else if(rate >= .42){
+    rank = "B級：謎名刺を配りたい修行僧";
+    text = "惜しいです。会話の入り口より、終わり方の判断を鍛えると一気に伸びます。";
+  }else{
+    rank = "C級：ワッペンが先に歩いている人";
+    text = "かなり危険です。あほっぽさは才能ですが、相手の動線・拒否・多忙サインを最優先にしましょう。";
+  }
+
+  app.innerHTML = `
+    <div class="resultTitle">結果発表</div>
+    <div class="topbar">
+      <div class="stat"><b>${score}</b><span>最終得点</span></div>
+      <div class="stat"><b>${total}</b><span>出題数</span></div>
+      <div class="stat"><b>${maxStreak}</b><span>最大連続</span></div>
+      <div class="stat"><b>${hardMode ? "地獄" : "通常"}</b><span>モード</span></div>
+    </div>
+    <div class="rank">
+      <h2>${rank}</h2>
+      <p>${text}</p>
+    </div>
+    <p>
+      <span class="tag">重要</span>
+      このゲームの最強行動は「相手が困っていたらやめる」「断られたら一発で引く」「通路をふさがない」です。
+    </p>
+    <div class="controls">
+      <button class="primary" onclick="start(hardMode)">同じモードでもう一回</button>
+      <button class="ghost" onclick="renderStart()">モード選択へ</button>
+    </div>
+    <div class="log">
+      ${log.map((l,i)=>`
+        <div class="logItem">
+          <b>${i+1}. ${l.title}</b>
+          <span class="${l.ok?'ok':'danger'}"> ${l.ok?'正解':'不正解'}</span><br>
+          ${l.exp}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+renderStart();
+</script>
+</body>
+</html>
